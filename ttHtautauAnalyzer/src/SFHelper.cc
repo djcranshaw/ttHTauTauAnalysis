@@ -356,7 +356,9 @@ void SFHelper::Set_up_triggerSF_Lut()
 	g_Eleleg_ZMassEta1p48to2p1_Data = (TGraphAsymmErrors*)file_Ele_EleTau_hlt_eff->Get("ZMassEta1p48to2p1_Data");
 
 	// tau leg of lepton-tau cross triggers
-	tauTrigSFhelper = new TauTriggerSFs2017(std::string(getenv("CMSSW_BASE")) + "/src/TriggerSF/TauTriggerSFs2017/data/tauTriggerEfficiencies2017.root","medium");
+//	tauTrigSFhelper = new TauTriggerSFs2017(std::string(getenv("CMSSW_BASE")) + "/src/TriggerSF/TauTriggerSFs2017/data/tauTriggerEfficiencies2017.root","medium"); // !!!
+        etauTrigSFhelper = new TauTriggerSFs2017(std::string(getenv("CMSSW_BASE")) + "/src/TriggerSF/TauTriggerSFs2017/data/tauTriggerEfficiencies2017.root","etau","2017","medium","MVAv2");
+        mutauTrigSFhelper = new TauTriggerSFs2017(std::string(getenv("CMSSW_BASE")) + "/src/TriggerSF/TauTriggerSFs2017/data/tauTriggerEfficiencies2017.root","mutau","2017","medium","MVAv2");
 	
 }
 
@@ -438,7 +440,9 @@ void SFHelper::Delete_triggerSF_Lut()
 	delete file_Mu_MuTau_hlt_eff;
 	delete file_Ele_EleTau_hlt_eff;
 
-	delete tauTrigSFhelper;
+//	delete tauTrigSFhelper; // !!!
+        delete etauTrigSFhelper;
+        delete mutauTrigSFhelper;
 }
 
 #if !defined(__ACLIC__) && !defined(__ROOTCLING__)
@@ -465,8 +469,8 @@ float SFHelper::Get_HLTSF(const std::vector<miniLepton>& leptons,
 		return Get_HLTSF_3l();
 	}
 	else {
-		std::cout << "SFHelper::Get_HLTSF() : WARNING! analysis type not supported."
-				  << std::endl;
+//		std::cout << "SFHelper::Get_HLTSF() : WARNING! analysis type not supported."
+//				  << std::endl;
 		return 1.;
 	}
 }
@@ -557,7 +561,7 @@ float SFHelper::Get_HLTSF_1l2tau(const miniLepton& lepton,
 													  lepton.pdgId(), false);
 
 	// trigger efficiency for tau leg of lep tau cross trigger
-	float eff_t0_data, eff_t0_mc, eff_t1_data, eff_t1_mc;
+/*	float eff_t0_data, eff_t0_mc, eff_t1_data, eff_t1_mc;
 	if (abs(lepton.pdgId())==11) { // ele+tau
 		eff_t0_data = tauTrigSFhelper->getETauEfficiencyData(taus[0].pt(),taus[0].eta(),taus[0].phi());
 		eff_t0_mc = tauTrigSFhelper->getETauEfficiencyMC(taus[0].pt(),taus[0].eta(),taus[0].phi());
@@ -570,6 +574,21 @@ float SFHelper::Get_HLTSF_1l2tau(const miniLepton& lepton,
 		eff_t1_data = tauTrigSFhelper->getMuTauEfficiencyData(taus[1].pt(),taus[1].eta(),taus[1].phi());
 		eff_t1_mc = tauTrigSFhelper->getMuTauEfficiencyMC(taus[1].pt(),taus[1].eta(),taus[1].phi());
 	}
+*/ // !!!
+        // trigger efficiency for tau leg of lep tau cross trigger
+        float eff_t0_data, eff_t0_mc, eff_t1_data, eff_t1_mc;
+        if (abs(lepton.pdgId())==11) { // ele+tau
+                eff_t0_data = etauTrigSFhelper->getTriggerEfficiencyData(taus[0].pt(),taus[0].eta(),taus[0].phi(),taus[0].decaymode());
+                eff_t0_mc = etauTrigSFhelper->getTriggerEfficiencyMC(taus[0].pt(),taus[0].eta(),taus[0].phi(),taus[0].decaymode());
+                eff_t1_data = etauTrigSFhelper->getTriggerEfficiencyData(taus[1].pt(),taus[1].eta(),taus[1].phi(),taus[1].decaymode());
+                eff_t1_mc = etauTrigSFhelper->getTriggerEfficiencyMC(taus[1].pt(),taus[1].eta(),taus[1].phi(),taus[1].decaymode());
+        }
+        else { // mu+tau
+                eff_t0_data = mutauTrigSFhelper->getTriggerEfficiencyData(taus[0].pt(),taus[0].eta(),taus[0].phi(),taus[0].decaymode());
+                eff_t0_mc = mutauTrigSFhelper->getTriggerEfficiencyMC(taus[0].pt(),taus[0].eta(),taus[0].phi(),taus[0].decaymode());
+                eff_t1_data = mutauTrigSFhelper->getTriggerEfficiencyData(taus[1].pt(),taus[1].eta(),taus[1].phi(),taus[1].decaymode());
+                eff_t1_mc = mutauTrigSFhelper->getTriggerEfficiencyMC(taus[1].pt(),taus[1].eta(),taus[1].phi(),taus[1].decaymode());
+        }
 
 	// compute trigger efficiency based on triggered HLT paths
 	float eff_data = Compute_trig_eff_OR_1l2tau(eff_L_data,eff_l_data,eff_t0_data,
@@ -1110,7 +1129,7 @@ float SFHelper::Get_TauIDSF_weight(const std::vector<miniTau>& taus, TString sys
 	size_t ntaus = 1;
 	if (_analysis==Analyze_1l2tau or _analysis==Analyze_2l2tau)
 		ntaus = 2;
-	else if (_analysis==Analyze_2lss or _analysis==Analyze_3l)
+	else if (_analysis==Analyze_2lss or _analysis==Analyze_3l or _analysis==Analyze_NA)
 		ntaus = 0;
 	// TODO: ttW,ttZ control regions ?
 

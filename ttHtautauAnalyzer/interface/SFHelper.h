@@ -8,7 +8,7 @@
 #include "CondTools/BTau/interface/BTagCalibrationReader.h"
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 #endif
-#include "TriggerSF/TauTriggerSFs2017/interface/TauTriggerSFs2017.h"
+#include "TauAnalysisTools/TauTriggerSFs/interface/TauTriggerSFs2017.h"
 #include "miniLepton.h"
 #include "miniTau.h"
 #include "miniJet.h"
@@ -239,7 +239,9 @@ class SFHelper
 	TGraphAsymmErrors* g_Eleleg_ZMassEtaLt1p48_Data;
 	TGraphAsymmErrors* g_Eleleg_ZMassEta1p48to2p1_Data;
 
-	TauTriggerSFs2017* tauTrigSFhelper;
+//	TauTriggerSFs2017* tauTrigSFhelper;
+        TauTriggerSFs2017* etauTrigSFhelper;
+        TauTriggerSFs2017* mutauTrigSFhelper;
 	
 	// CSV
 #if !defined(__ACLIC__) && !defined(__ROOTCLING__)
